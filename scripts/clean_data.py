@@ -69,9 +69,9 @@ def write_player_ids_to_pickle(player_ids, pickle_filepath):
 def status_bar(current, total, last):
     progress = int(current / total * 100)
     if current == 0:
-        print('PROGRESS: [', end='')
+        print('PROGRESS: [', end='', flush=True)
     if progress > last:
-        print('\u2588', end='')
+        print('\u2588', end='', flush=True)
     if current == total:
         print(']')
     return progress
@@ -91,13 +91,15 @@ if __name__ == '__main__':
 
     pickle_filepath = '/Users/tylerviducic/dev/hockey_analytics/gamescore_model/data/scraped_players/player_ids.pickle'
     player_ids = read_player_ids_from_pickle(pickle_filepath)
-    print(player_ids)
 
     url = 'https://moneypuck.com/moneypuck/playerData/careers/gameByGame/regular/skaters/{}.csv'
 
     last = status_bar(0, len(player_lookup_list), 0)
     for player_id in player_lookup_list:
+        last = status_bar(player_lookup_list.index(
+            player_id) + 1, len(player_lookup_list), last)
         if player_id in player_ids:
+            time.sleep(0.01)
             continue
         else:
             start_time = time.time()
@@ -113,5 +115,3 @@ if __name__ == '__main__':
             end_time = time.time()
             if (end_time - start_time < 1):
                 time.sleep(1 - (end_time - start_time))
-            last = status_bar(player_lookup_list.index(player_id) + 1,
-                              len(player_lookup_list), last)
