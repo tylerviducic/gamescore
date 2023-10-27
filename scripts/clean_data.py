@@ -1,14 +1,22 @@
-
+"""
+This file contains the constants and methods for cleaning the data
+"""
+from operator import index
+import stat
+from tracemalloc import start
 import pandas as pd
-import numpy as np
-import matplotlib.pyplot as plt
-import requests
+import pickle
+import time
+import logging
+
+logging.basicConfig(filename='scraper.log',
+                    level=logging.DEBUG, encoding='utf-8')
 
 
 game_df = pd.read_csv(
-    '/Users/tylerviducic/dev/hockey_analytics/gamescore_model/kaggle_data/game.csv')
+    '/Users/tylerviducic/dev/hockey_analytics/gamescore_model/data/kaggle_data/game.csv')
 team_stats_df = pd.read_csv(
-    '/Users/tylerviducic/dev/hockey_analytics/gamescore_model/kaggle_data/game_teams_stats.csv')
+    '/Users/tylerviducic/dev/hockey_analytics/gamescore_model/data/kaggle_data/game_teams_stats.csv')
 
 
 bio_labels = ['playerId', 'season', 'name', 'gameId', 'playerTeam',
@@ -22,7 +30,7 @@ all_strength_labels = bio_labels + individual_skater_labels
 
 def get_score_of_game(game_id):
     df = pd.read_csv(
-        '/Users/tylerviducic/dev/hockey_analytics/gamescore_model/kaggle_data/final_scores.csv')
+        '/Users/tylerviducic/dev/hockey_analytics/gamescore_model/data/kaggle_data/final_scores.csv')
     game_df = df.loc[df['game_id'] == game_id]
     try:
         home_score = game_df['home_goals'].values[0]
@@ -48,22 +56,57 @@ def reduce_df(grouped_df):
     return reduced_df
 
 
-if __name__ == '__main__':
-    player_df = pd.read_csv(
-        '/Users/tylerviducic/dev/hockey_analytics/gamescore_model/mp_data/8481559.csv')
-    # print(player_df.to_markdown())
-    column_list = player_df.columns.to_list()
-    goal_col = [col for col in column_list if 'goal' in col or 'Goal' in col]
-    # print(goal_col)
-    max_len = max([len(x) for x in goal_col])
-    # print(max_len)
-    for i, col in enumerate(goal_col):
-        end = '\n'
-        if (i+1) % 4 != 0:
-            end = '|'
-        line = f' {col} ' + (' ' * (max_len - len(col)))
-        # print(line, end=end)
+def read_player_ids_from_pickle(pickle_filepath):
+    with open(pickle_filepath, 'rb') as f:
+        player_ids = pickle.load(f)
+    return player_ids
 
-    grouped_df = player_df.groupby('gameId')
-    reduced_df = reduce_df(grouped_df)
-    print(reduced_df.tail(10).to_markdown())
+
+def write_player_ids_to_pickle(player_ids, pickle_filepath):
+    with open(pickle_filepath, 'wb') as f:
+        pickle.dump(player_ids, f)
+
+
+def status_bar(current, total, last):
+    progress = int(current / total * 100)
+    if current == 0:
+        print('PROGRESS: [', end='')
+    if progress > last:
+        print('\u2588', end='')
+    if current == total:
+        print(']')
+    return progress
+
+
+if __name__ == '__main__':
+    player_lookup_df = pd.read_csv(
+        '/Users/tylerviducic/dev/hockey_analytics/gamescore_model/data/mp_data/MPallPlayersLookup.csv')
+    player_lookup_list = player_lookup_df['playerId'].tolist()
+
+    pickle_filepath = '/Users/tylerviducic/dev/hockey_analytics/gamescore_model/data/scraped_players/player_ids.pickle'
+    player_ids = read_player_ids_from_pickle(pickle_filepath)
+    print(player_ids)
+
+    url = 'https://moneypuck.com/moneypuck/playerData/careers/gameByGame/regular/skaters/{}.csv'
+
+    last = status_bar(0, len(player_lookup_list), 0)
+    for player_id in player_lookup_list:
+        if player_id in player_ids:
+            continue
+        else:
+            start_time = time.time()
+            logging.info(f'Getting data for player_id: {player_id}')
+            logging.info(f'Opening URL: {url.format(player_id)}')
+            player_df = pd.read_csv(url.format(player_id))
+            reduced_df = reduce_df(player_df.groupby('gameId'))
+            reduced_df.to_csv(
+                f'/Users/tylerviducic/dev/hockey_analytics/gamescore_model/data/scraped_players/{player_id}.csv')
+            player_ids.append(player_id)
+            write_player_ids_to_pickle(player_ids, pickle_filepath)
+            end_time = time.time()
+            if (end_time - start_time < 1):
+                time.sleep(1 - (end_time - start_time))
+            last = status_bar(player_lookup_list.index(player_id) + 1,
+                              len(player_lookup_list), last)
+        if player_lookup_list.index(player_id) >= 60:
+            break
