@@ -99,7 +99,6 @@ if __name__ == '__main__':
         last = status_bar(player_lookup_list.index(
             player_id) + 1, len(player_lookup_list), last)
         if player_id in player_ids:
-            time.sleep(0.01)
             continue
         else:
             start_time = time.time()
