@@ -1,13 +1,12 @@
 """
 This file contains the constants and methods for cleaning the data
 """
-from operator import index
-import stat
-from tracemalloc import start
 import pandas as pd
 import pickle
 import time
 import logging
+import cloudscraper
+import io
 
 logging.basicConfig(filename='scraper.log',
                     level=logging.DEBUG, encoding='utf-8')
@@ -50,7 +49,7 @@ def reduce_df(grouped_df):
         drop=True) for game, group in grouped_df])
     reduced_df = pd.concat(
         [all_strength_df, oi_5v5_frames_df], axis=1).reset_index(drop=True)
-    # print(reduced_df['gameId'])
+    reduced_df = reduced_df[reduced_df['gameId'] < 2023000000]
     reduced_df[['home_score', 'away_score']] = reduced_df.apply(
         lambda row: get_score_of_game(row['gameId']), axis=1, result_type='expand')
     return reduced_df
@@ -78,9 +77,16 @@ def status_bar(current, total, last):
     return progress
 
 
+def get_csv(url):
+    with cloudscraper.CloudScraper() as scraper:
+        csv = scraper.get(url)
+        return io.StringIO(csv.content.decode('utf-8'))
+
+
 if __name__ == '__main__':
     player_lookup_df = pd.read_csv(
         '/Users/tylerviducic/dev/hockey_analytics/gamescore_model/data/mp_data/MPallPlayersLookup.csv')
+    player_lookup_df = player_lookup_df[player_lookup_df['position'] != 'G']
     player_lookup_list = player_lookup_df['playerId'].tolist()
 
     pickle_filepath = '/Users/tylerviducic/dev/hockey_analytics/gamescore_model/data/scraped_players/player_ids.pickle'
@@ -97,10 +103,11 @@ if __name__ == '__main__':
             start_time = time.time()
             logging.info(f'Getting data for player_id: {player_id}')
             logging.info(f'Opening URL: {url.format(player_id)}')
-            player_df = pd.read_csv(url.format(player_id))
+            csv = get_csv(url.format(player_id))
+            player_df = pd.read_csv(csv)
             reduced_df = reduce_df(player_df.groupby('gameId'))
             reduced_df.to_csv(
-                f'/Users/tylerviducic/dev/hockey_analytics/gamescore_model/data/scraped_players/{player_id}.csv')
+                f'/Users/tylerviducic/dev/hockey_analytics/gamescore_model/data/cleaned_data/{player_id}.csv')
             player_ids.append(player_id)
             write_player_ids_to_pickle(player_ids, pickle_filepath)
             end_time = time.time()
@@ -108,5 +115,3 @@ if __name__ == '__main__':
                 time.sleep(1 - (end_time - start_time))
             last = status_bar(player_lookup_list.index(player_id) + 1,
                               len(player_lookup_list), last)
-        if player_lookup_list.index(player_id) >= 60:
-            break
