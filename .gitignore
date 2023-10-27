@@ -166,3 +166,4 @@ cython_debug/
 kaggle_data/.DS_Store
 data/scraped_players/player_ids.pickle
 data/kaggle_data/table_relationships.JPG
+TOP100.md
