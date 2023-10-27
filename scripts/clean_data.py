@@ -95,9 +95,8 @@ if __name__ == '__main__':
     url = 'https://moneypuck.com/moneypuck/playerData/careers/gameByGame/regular/skaters/{}.csv'
 
     last = status_bar(0, len(player_lookup_list), 0)
-    for player_id in player_lookup_list:
-        last = status_bar(player_lookup_list.index(
-            player_id) + 1, len(player_lookup_list), last)
+    for i, player_id in enumerate(player_lookup_list):
+        last = status_bar(i + 1, len(player_lookup_list), last)
         if player_id in player_ids:
             continue
         else:
