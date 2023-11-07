@@ -27,12 +27,9 @@ def normalize_data(df):
     return norm_df
 
 
-def calculate_season_avg_goal_differential(df):
-    df['goal_dif'] = df.apply(lambda x: calculate_goal_dif(
-        x['home_or_away'], x['home_score'], x['away_score']), axis=1)
-    df['season_avg_goal_dif'] = df.groupby(
-        'season')['goal_dif'].transform('mean')
-    return df
+def calculate_team_season_goal_diff(team, season_start):
+    # TODO: write this code
+    return
 
 
 bio_labels = ['playerId', 'season', 'name', 'gameId', 'playerTeam',
