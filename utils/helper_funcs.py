@@ -3,10 +3,50 @@ functions used for building the model
 """
 
 import pickle
+from typing import final
 import pandas as pd
 import numpy as np
 import cloudscraper
 import io
+
+from requests import get
+
+team_id_dict = {
+    'NJD': 1,
+    'PHI': 4,
+    'LAK': 26,
+    'TBL': 14,
+    'BOS': 6,
+    'NYR': 3,
+    'PIT': 5,
+    'DET': 17,
+    'SJS': 28,
+    'NSH': 18,
+    'VAN': 23,
+    'CHI': 16,
+    'OTT': 9,
+    'MTL': 8,
+    'MIN': 30,
+    'WSH': 15,
+    'STL': 19,
+    'ANA': 24,
+    'PHX': 27,
+    'NYI': 2,
+    'TOR': 10,
+    'FLA': 13,
+    'BUF': 7,
+    'CGY': 20,
+    'COL': 21,
+    'DAL': 25,
+    'CBJ': 29,
+    'WPG': 52,
+    'EDM': 22,
+    'VGK': 54,
+    'CAR': 12,
+    'ARI': 53,
+    'ATL': 11,
+    'SEA': 55
+}
 
 
 def calculate_goal_dif(home_or_away, home_score, away_score):
@@ -27,9 +67,23 @@ def normalize_data(df):
     return norm_df
 
 
-def calculate_team_season_goal_diff(team, season_start):
-    # TODO: write this code
-    return
+def get_season_from_game_id(game_id):
+    return int(str(game_id)[:4])
+
+
+def calculate_team_season_goal_diff(player_team, season_start):
+    final_scores = pd.read_csv(
+        '/Users/tylerviducic/dev/hockey_analytics/gamescore_model/data/kaggle_data/final_scores.csv')
+    player_team_id = team_id_dict[player_team]
+    final_scores['season'] = final_scores['game_id'].apply(
+        get_season_from_game_id)
+    team_season_scores = final_scores.loc[(final_scores['season'] == season_start) & (
+        (final_scores['home_team_id'] == player_team_id) | (final_scores['away_team_id'] == player_team_id))]
+    team_season_scores['home_or_away'] = team_season_scores.apply(
+        lambda row: 'HOME' if row['home_team_id'] == player_team_id else 'AWAY', axis=1)
+    team_season_scores['goal_dif'] = team_season_scores.apply(lambda row: calculate_goal_dif(
+        row['home_or_away'], row['home_goals'], row['away_goals']), axis=1)
+    return team_season_scores['goal_dif'].mean()
 
 
 bio_labels = ['playerId', 'season', 'name', 'gameId', 'playerTeam',
@@ -95,3 +149,7 @@ def get_csv(url):
     with cloudscraper.CloudScraper() as scraper:
         csv = scraper.get(url)
         return io.StringIO(csv.content.decode('utf-8'))
+
+
+if __name__ == "__main__":
+    print(calculate_team_season_goal_diff('NJD', 2010))
