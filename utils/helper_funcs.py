@@ -152,4 +152,4 @@ def get_csv(url):
 
 
 if __name__ == "__main__":
-    print(calculate_team_season_goal_diff('NJD', 2010))
+    print(calculate_team_season_goal_diff('BOS', 2022))
