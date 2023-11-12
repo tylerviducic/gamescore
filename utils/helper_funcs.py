@@ -67,10 +67,6 @@ def normalize_data(df):
     return norm_df
 
 
-def get_season_from_game_id(game_id):
-    return int(str(game_id)[:4])
-
-
 def calculate_team_season_goal_diff(player_team, season_start):
     final_scores = pd.read_csv(
         '/Users/tylerviducic/dev/hockey_analytics/gamescore_model/data/kaggle_data/final_scores.csv')
