@@ -48,6 +48,43 @@ team_id_dict = {
     'SEA': 55
 }
 
+team_name_dict = {
+    1: 'NJD',
+    4: 'PHI',
+    2: 'LAK',
+    1: 'TBL',
+    6: 'BOS',
+    3: 'NYR',
+    5: 'PIT',
+    1: 'DET',
+    2: 'SJS',
+    1: 'NSH',
+    2: 'VAN',
+    1: 'CHI',
+    9: 'OTT',
+    8: 'MTL',
+    3: 'MIN',
+    1: 'WSH',
+    1: 'STL',
+    2: 'ANA',
+    2: 'PHX',
+    2: 'NYI',
+    1: 'TOR',
+    1: 'FLA',
+    7: 'BUF',
+    2: 'CGY',
+    2: 'COL',
+    2: 'DAL',
+    2: 'CBJ',
+    5: 'WPG',
+    2: 'EDM',
+    5: 'VGK',
+    1: 'CAR',
+    5: 'ARI',
+    1: 'ATL',
+    5: 'SEA'
+}
+
 
 def calculate_goal_dif(home_or_away, home_score, away_score):
     if home_or_away == 'HOME':
