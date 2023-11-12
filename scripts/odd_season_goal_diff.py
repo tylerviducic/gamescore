@@ -15,7 +15,7 @@ avg_dif_dict = {}
 
 for file in files:
     df = pd.read_csv(file)
-    df['goal_diff'] = np.where(df['home_or_away'] == 'home', df['home_score'] -
+    df['goal_diff'] = np.where(df['home_or_away'] == 'HOME', df['home_score'] -
                                df['away_score'], df['away_score'] - df['home_score'])
     grouped = df.groupby('season')
     for name, group in grouped:
