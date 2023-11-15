@@ -48,6 +48,47 @@ team_id_dict = {
     'SEA': 55
 }
 
+mp_team_id_dict = {
+    'N.J': 1,
+    'NJD': 1,
+    'PHI': 4,
+    'L.A': 26,
+    'LAK': 26,
+    'T.B': 14,
+    'TBL': 14,
+    'BOS': 6,
+    'NYR': 3,
+    'PIT': 5,
+    'DET': 17,
+    'S.J': 28,
+    'SJS': 28,
+    'NSH': 18,
+    'VAN': 23,
+    'CHI': 16,
+    'OTT': 9,
+    'MTL': 8,
+    'MIN': 30,
+    'WSH': 15,
+    'STL': 19,
+    'ANA': 24,
+    'PHX': 27,
+    'NYI': 2,
+    'TOR': 10,
+    'FLA': 13,
+    'BUF': 7,
+    'CGY': 20,
+    'COL': 21,
+    'DAL': 25,
+    'CBJ': 29,
+    'WPG': 52,
+    'EDM': 22,
+    'VGK': 54,
+    'CAR': 12,
+    'ARI': 53,
+    'ATL': 11,
+    'SEA': 55
+}
+
 team_name_dict = {
     1: 'NJD',
     4: 'PHI',
