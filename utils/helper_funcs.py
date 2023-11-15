@@ -145,21 +145,6 @@ def normalize_data(df):
     return norm_df
 
 
-def calculate_team_season_goal_diff(player_team, season_start):
-    final_scores = pd.read_csv(
-        '/Users/tylerviducic/dev/hockey_analytics/gamescore_model/data/kaggle_data/final_scores.csv')
-    player_team_id = team_id_dict[player_team]
-    final_scores['season'] = final_scores['game_id'].apply(
-        get_season_from_game_id)
-    team_season_scores = final_scores.loc[(final_scores['season'] == season_start) & (
-        (final_scores['home_team_id'] == player_team_id) | (final_scores['away_team_id'] == player_team_id))]
-    team_season_scores['home_or_away'] = team_season_scores.apply(
-        lambda row: 'HOME' if row['home_team_id'] == player_team_id else 'AWAY', axis=1)
-    team_season_scores['goal_dif'] = team_season_scores.apply(lambda row: calculate_goal_dif(
-        row['home_or_away'], row['home_goals'], row['away_goals']), axis=1)
-    return team_season_scores['goal_dif'].mean()
-
-
 bio_labels = ['playerId', 'season', 'name', 'gameId', 'playerTeam',
               'opposingTeam', 'home_or_away', 'gameDate', 'position']
 individual_skater_labels = ['icetime', 'shifts', 'gameScore', 'iceTimeRank', 'I_F_xOnGoal', 'I_F_xGoals', 'I_F_xRebounds', 'I_F_xFreeze', 'I_F_xPlayStopped', 'I_F_xPlayContinuedInZone', 'I_F_xPlayContinuedOutsideZone', 'I_F_flurryAdjustedxGoals', 'I_F_scoreVenueAdjustedxGoals', 'I_F_flurryScoreVenueAdjustedxGoals', 'I_F_primaryAssists', 'I_F_secondaryAssists', 'I_F_shotsOnGoal', 'I_F_missedShots', 'I_F_blockedShotAttempts', 'I_F_shotAttempts', 'I_F_points', 'I_F_goals', 'I_F_rebounds', 'I_F_reboundGoals', 'I_F_freeze', 'I_F_playStopped', 'I_F_playContinuedInZone', 'I_F_playContinuedOutsideZone', 'I_F_savedShotsOnGoal', 'I_F_savedUnblockedShotAttempts', 'penalties', 'I_F_penalityMinutes', 'I_F_faceOffsWon', 'I_F_hits', 'I_F_takeaways', 'I_F_giveaways', 'I_F_lowDangerShots', 'I_F_mediumDangerShots', 'I_F_highDangerShots',
@@ -226,4 +211,4 @@ def get_csv(url):
 
 
 if __name__ == "__main__":
-    print(calculate_team_season_goal_diff('BOS', 2022))
+    print('testing')
